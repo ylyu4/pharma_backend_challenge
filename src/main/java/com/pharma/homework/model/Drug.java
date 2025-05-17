@@ -1,6 +1,7 @@
 package com.pharma.homework.model;
 
 
+import com.pharma.homework.dto.NewDrugRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,4 +26,62 @@ public class Drug {
     private LocalDate expiryDate;
 
     private Integer stock;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public String getBatchNumber() {
+        return batchNumber;
+    }
+
+    public void setBatchNumber(String batchNumber) {
+        this.batchNumber = batchNumber;
+    }
+
+    public LocalDate getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(LocalDate expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
+    public static Drug from(NewDrugRequest request) {
+        Drug drug = new Drug();
+        drug.setName(request.getName());
+        drug.setManufacturer(request.getManufacturer());
+        drug.setBatchNumber(request.getBatchNumber());
+        drug.setExpiryDate(request.getExpiryDate());
+        drug.setStock(request.getStock());
+        return drug;
+    }
 }
