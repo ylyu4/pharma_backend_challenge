@@ -1,4 +1,4 @@
-package com.pharma.homework.dto;
+package com.pharma.homework.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,5 +1,6 @@
 package com.pharma.homework.repository;
 
+import com.pharma.homework.TestUtils;
 import com.pharma.homework.model.Drug;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +27,7 @@ public class DrugRepositoryTest {
     @Test
     void testSaveDrugSuccessfully() {
         // given
-        Drug drug = new Drug();
-        drug.setName("VitaminB");
-        drug.setManufacturer("Unknown");
+        Drug drug = TestUtils.generateDrug(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
 
         // when
         Drug savedDrug = drugRepository.save(drug);
@@ -39,15 +38,9 @@ public class DrugRepositoryTest {
     }
 
     @Test
-    void testUpdateStock() {
+    void testFindDrugById() {
         // given
-        Drug drug = new Drug();
-        drug.setId(1L);
-        drug.setName("VitaminB");
-        drug.setManufacturer("Unknown");
-        drug.setBatchNumber("x123456");
-        drug.setExpiryDate(LocalDate.now());
-        drug.setStock(10);
+        Drug drug = TestUtils.generateDrug(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
         Drug saved = drugRepository.save(drug);
 
         entityManager.flush();
