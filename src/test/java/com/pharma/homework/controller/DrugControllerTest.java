@@ -1,7 +1,9 @@
 package com.pharma.homework.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pharma.homework.dto.NewDrugRequest;
+import com.pharma.homework.dto.CreateDrugRequest;
+import com.pharma.homework.dto.DrugAddRequest;
+import com.pharma.homework.exception.DrugNotFoundException;
 import com.pharma.homework.model.Drug;
 import com.pharma.homework.service.DrugService;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,17 +37,19 @@ public class DrugControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void should_add_drug_successfully() throws Exception {
+    void should_create_drug_successfully() throws Exception {
         // given
-        NewDrugRequest request = new NewDrugRequest("VitaminB", "Unknown", "x123456", LocalDate.now(), 100);
+        CreateDrugRequest request = new CreateDrugRequest("VitaminB", "Unknown", "x123456", LocalDate.now(), 100);
         Drug drug = Drug.from(request);
-        when(drugService.addNewDrug(any())).thenReturn(drug);
+        drug.setId(1L);
+        when(drugService.createNewDrug(any())).thenReturn(drug);
 
         // then
         mockMvc.perform(post("/drug")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.name").value("VitaminB"));
     }
 
@@ -115,4 +120,58 @@ public class DrugControllerTest {
                         .content(name))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void should_add_drug_successfully() throws Exception {
+        // given
+        DrugAddRequest request = new DrugAddRequest(1L, 100);
+        Drug drug = new Drug();
+        drug.setId(1L);
+        drug.setName("VitaminB");
+        drug.setManufacturer("Unknown");
+        drug.setBatchNumber("x123456");
+        drug.setExpiryDate(LocalDate.now());
+        drug.setStock(200);
+        when(drugService.addDrug(any())).thenReturn(drug);
+
+        // then
+        mockMvc.perform(put("/drug")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.stock").value(200));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"""
+                    {
+                        "addedStock": 50
+                    }
+                """, """
+                    {
+                        "id": 1L
+                    }
+                """})
+    void shouldThrowErrorWhenParamsAreInvalid(String name) throws Exception {
+        mockMvc.perform(put("/drug")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(name))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldThrowNotFoundExceptionWhenIdDoesNotExist() throws Exception {
+        // given
+        DrugAddRequest request = new DrugAddRequest(1L, 100);
+
+        // when
+        when(drugService.addDrug(any())).thenThrow(DrugNotFoundException.class);
+
+        // then
+        mockMvc.perform(put("/drug")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
 }

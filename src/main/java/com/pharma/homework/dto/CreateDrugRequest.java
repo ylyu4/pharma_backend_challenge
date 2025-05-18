@@ -6,7 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
-public class NewDrugRequest {
+public class CreateDrugRequest {
     @NotBlank(message = "Name can not be blank")
     private String name;
 
@@ -23,10 +23,10 @@ public class NewDrugRequest {
     @NotNull(message = "Stock can not be null")
     private Integer stock;
 
-    public NewDrugRequest() {
+    public CreateDrugRequest() {
     }
 
-    public NewDrugRequest(String name, String manufacturer, String batchNumber, LocalDate expiryDate, Integer stock) {
+    public CreateDrugRequest(String name, String manufacturer, String batchNumber, LocalDate expiryDate, Integer stock) {
         this.name = name;
         this.manufacturer = manufacturer;
         this.batchNumber = batchNumber;

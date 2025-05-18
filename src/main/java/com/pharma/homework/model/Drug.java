@@ -1,7 +1,7 @@
 package com.pharma.homework.model;
 
 
-import com.pharma.homework.dto.NewDrugRequest;
+import com.pharma.homework.dto.CreateDrugRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -75,7 +75,11 @@ public class Drug {
         this.stock = stock;
     }
 
-    public static Drug from(NewDrugRequest request) {
+    public void addStock(Integer stock) {
+        this.stock += stock;
+    }
+
+    public static Drug from(CreateDrugRequest request) {
         Drug drug = new Drug();
         drug.setName(request.getName());
         drug.setManufacturer(request.getManufacturer());
