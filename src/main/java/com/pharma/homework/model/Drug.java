@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import java.time.LocalDate;
 
@@ -28,6 +29,9 @@ public class Drug {
     private LocalDate expiryDate;
 
     private Integer stock;
+
+    @Version
+    private Integer version;
 
     public Long getId() {
         return id;
@@ -79,6 +83,14 @@ public class Drug {
 
     public void addStock(Integer stock) {
         this.stock += stock;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     public static Drug from(CreateDrugRequest request) {

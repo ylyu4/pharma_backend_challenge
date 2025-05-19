@@ -8,9 +8,12 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+
+import java.io.Serializable;
 
 @Entity
-@IdClass(PharmacyDrugId.class)
+@IdClass(PharmacyDrugInfo.PharmacyDrugId.class)
 @Table(name = "pharmacy_drug_info")
 public class PharmacyDrugInfo {
 
@@ -30,6 +33,8 @@ public class PharmacyDrugInfo {
     @Column(name = "dispensing_amount", nullable = false)
     private Integer dispensingAmount;
 
+    @Version
+    private Integer version;
 
     public Pharmacy getPharmacy() {
         return pharmacy;
@@ -61,5 +66,26 @@ public class PharmacyDrugInfo {
 
     public void setDispensingAmount(Integer dispensingAmount) {
         this.dispensingAmount = dispensingAmount;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    static class PharmacyDrugId implements Serializable {
+        private Long pharmacy;
+        private Long drug;
+
+        public Long getPharmacy() {
+            return pharmacy;
+        }
+
+        public Long getDrug() {
+            return drug;
+        }
     }
 }

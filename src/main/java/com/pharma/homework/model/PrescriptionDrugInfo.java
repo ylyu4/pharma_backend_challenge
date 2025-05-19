@@ -51,6 +51,14 @@ public class PrescriptionDrugInfo {
         this.prescription = prescription;
     }
 
+    public void setDrug(Drug drug) {
+        this.drug = drug;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
     static class PrescriptionDrugId implements Serializable {
         private Long prescription;
         private Long drug;

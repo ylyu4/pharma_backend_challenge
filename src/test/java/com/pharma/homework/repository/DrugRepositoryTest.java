@@ -28,7 +28,7 @@ public class DrugRepositoryTest {
     @Test
     void test_save_drug_successfully() {
         // given
-        Drug drug = TestUtils.generateDrug(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
+        Drug drug = TestUtils.generateDrug("VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
 
         // when
         Drug savedDrug = drugRepository.save(drug);
@@ -41,7 +41,7 @@ public class DrugRepositoryTest {
     @Test
     void test_find_drug_by_id() {
         // given
-        Drug drug = TestUtils.generateDrug(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
+        Drug drug = TestUtils.generateDrug("VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
         Drug saved = drugRepository.save(drug);
 
         entityManager.flush();

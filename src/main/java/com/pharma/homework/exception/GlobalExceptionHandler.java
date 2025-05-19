@@ -1,5 +1,6 @@
 package com.pharma.homework.exception;
 
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -70,5 +71,29 @@ public class GlobalExceptionHandler {
         response.put("error", "BAD_REQUEST");
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(InvalidPrescriptionStatusException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidPrescriptionStatus(InvalidPrescriptionStatusException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "BAD_REQUEST");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(PrescriptionNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handlePrescriptionNotFound(PrescriptionNotFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "NOT_FOUND");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<Map<String, String>> handlePrescriptionNotFound(OptimisticLockingFailureException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "IS_CONFLICT");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 }

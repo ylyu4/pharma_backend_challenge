@@ -86,4 +86,11 @@ public class Prescription {
         return prescriptionDrugs;
     }
 
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setStatus(PrescriptionStatus status) {
+        this.status = status;
+    }
 }

@@ -12,10 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -42,7 +40,7 @@ public class PrescriptionRepositoryTest {
         pharmacy.setPhone("1234567890");
         Pharmacy savedPharmacy = pharmacyRepository.save(pharmacy);
 
-        Drug drug = TestUtils.generateDrug("test", "test", "test", LocalDate.now().plusMonths(6), 100);
+        Drug drug = TestUtils.generateDrug("test", "test", "test", LocalDateTime.now().toLocalDate().plusMonths(6), 100);
         Drug savedDrug = drugRepository.save(drug);
 
         Prescription prescription = new Prescription(
@@ -66,5 +64,4 @@ public class PrescriptionRepositoryTest {
         assertEquals(1, savedPrescription.getPrescriptionDrugs().size());
         assertEquals(savedDrug.getName(), savedPrescription.getPrescriptionDrugs().get(0).getDrug().getName());
     }
-
 }

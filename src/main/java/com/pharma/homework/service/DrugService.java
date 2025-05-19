@@ -7,7 +7,9 @@ import com.pharma.homework.exception.DrugNotFoundException;
 import com.pharma.homework.mapper.DrugMapper;
 import com.pharma.homework.model.Drug;
 import com.pharma.homework.repository.DrugRepository;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -23,11 +25,13 @@ public class DrugService {
         this.drugMapper = drugMapper;
     }
 
+    @Transactional
     public DrugResponse createNewDrug(CreateDrugRequest request) {
         Drug savedDrug = drugRepository.save(Drug.from(request));
         return drugMapper.toResponse(savedDrug);
     }
 
+    @Transactional
     public DrugResponse addDrug(DrugAddRequest request) {
         Optional<Drug> optionalDrug = drugRepository.findById(request.getId());
         if (optionalDrug.isEmpty()) {

@@ -6,6 +6,7 @@ import com.pharma.homework.mapper.PharmacyDrugInfoMapper;
 import com.pharma.homework.model.Pharmacy;
 import com.pharma.homework.repository.PharmacyRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class PharmacyService {
         this.pharmacyDrugInfoMapper = pharmacyDrugInfoMapper;
     }
 
+    @Transactional(readOnly = true)
     public List<PharmaciesResponse> getAllPharmacyDrugInfo() {
         List<Pharmacy> pharmacies = pharmacyRepository.findAllWithDrugInfo();
         return pharmacies.stream().map(pharmacyDrugInfoMapper::toResponse).toList();
