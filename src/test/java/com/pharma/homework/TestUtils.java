@@ -24,6 +24,20 @@ public class TestUtils {
         return drug;
     }
 
+    public static Drug generateDrug(String name,
+                                    String manufacturer,
+                                    String batchNumber,
+                                    LocalDate expiryDate,
+                                    Integer stock) {
+        Drug drug = new Drug();
+        drug.setName(name);
+        drug.setManufacturer(manufacturer);
+        drug.setBatchNumber(batchNumber);
+        drug.setExpiryDate(expiryDate);
+        drug.setStock(stock);
+        return drug;
+    }
+
     public static PharmacyDrugInfo generateDrugInfo(Pharmacy pharmacy,
                                                     Drug drug,
                                                     Integer dispensingAmount,

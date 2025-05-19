@@ -54,4 +54,23 @@ public class CreateDrugRequest {
         return stock;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public void setBatchNumber(String batchNumber) {
+        this.batchNumber = batchNumber;
+    }
+
+    public void setExpiryDate(LocalDate expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
 }

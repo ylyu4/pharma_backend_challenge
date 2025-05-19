@@ -29,7 +29,7 @@ public class DrugService {
     }
 
     public DrugResponse addDrug(DrugAddRequest request) {
-        Optional<Drug> optionalDrug = drugRepository.findDrugById(request.getId()).stream().findFirst();
+        Optional<Drug> optionalDrug = drugRepository.findById(request.getId());
         if (optionalDrug.isEmpty()) {
             throw new DrugNotFoundException(request.getId());
         }

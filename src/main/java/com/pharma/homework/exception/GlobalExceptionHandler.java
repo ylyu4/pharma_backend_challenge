@@ -31,4 +31,44 @@ public class GlobalExceptionHandler {
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+
+    @ExceptionHandler(DrugExpireException.class)
+    public ResponseEntity<Map<String, String>> handleDrugExpire(DrugExpireException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "BAD_REQUEST");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(PharmacyNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handlePharmacyNotFound(PharmacyNotFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "NOT_FOUND");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(PharmacyDrugInfoNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handlePharmacyDrugInfoNotFound(PharmacyDrugInfoNotFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "NOT_FOUND");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(InsufficientGlobalStockException.class)
+    public ResponseEntity<Map<String, String>> handleInsufficientGlobalStock(InsufficientGlobalStockException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "BAD_REQUEST");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(InsufficientPharmacyStockException.class)
+    public ResponseEntity<Map<String, String>> handleInsufficientPharmacyStock(InsufficientPharmacyStockException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "BAD_REQUEST");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }

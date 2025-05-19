@@ -37,7 +37,7 @@ public class PharmacyServiceTest {
 
 
     @Test
-    void testGetAllPharmacies() {
+    void test_get_all_pharmacies() {
         // given
         Drug drug = TestUtils.generateDrug(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 100);
         Pharmacy pharmacy1 = new Pharmacy();

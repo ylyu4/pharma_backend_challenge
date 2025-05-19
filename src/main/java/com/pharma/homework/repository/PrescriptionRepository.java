@@ -1,12 +1,10 @@
 package com.pharma.homework.repository;
 
-import com.pharma.homework.model.Drug;
+import com.pharma.homework.model.Prescription;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public interface DrugRepository extends JpaRepository<Drug, Long> {
+public interface PrescriptionRepository extends JpaRepository<Prescription, Long> {
 
 }

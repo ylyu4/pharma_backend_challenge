@@ -31,7 +31,7 @@ public class PharmacyRepositoryTest {
     private TestEntityManager entityManager;
 
     @Test
-    void testFindAllPharmaciesWithDrugInfo() {
+    void test_find_all_pharmacies_with_drug_info() {
         // given
         Drug drug = TestUtils.generateDrug(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
         Pharmacy pharmacy = new Pharmacy();

@@ -18,6 +18,14 @@ public class DrugAddRequest {
         return addedStock;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setAddedStock(Integer addedStock) {
+        this.addedStock = addedStock;
+    }
+
     public DrugAddRequest(Long id, Integer addedStock) {
         this.id = id;
         this.addedStock = addedStock;

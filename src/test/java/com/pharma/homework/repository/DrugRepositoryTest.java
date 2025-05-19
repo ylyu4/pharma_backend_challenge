@@ -11,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +26,7 @@ public class DrugRepositoryTest {
     private TestEntityManager entityManager;
 
     @Test
-    void testSaveDrugSuccessfully() {
+    void test_save_drug_successfully() {
         // given
         Drug drug = TestUtils.generateDrug(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
 
@@ -38,7 +39,7 @@ public class DrugRepositoryTest {
     }
 
     @Test
-    void testFindDrugById() {
+    void test_find_drug_by_id() {
         // given
         Drug drug = TestUtils.generateDrug(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
         Drug saved = drugRepository.save(drug);
@@ -47,11 +48,10 @@ public class DrugRepositoryTest {
         entityManager.clear();
 
         // when
-        List<Drug> drugList = drugRepository.findDrugById(drug.getId());
+        Optional<Drug> optionalDrug = drugRepository.findById(drug.getId());
 
         // then
-        assertEquals(1, drugList.size());
-        assertEquals(saved.getName(), drugList.get(0).getName());
-        assertEquals(saved.getManufacturer(), drugList.get(0).getManufacturer());
+        assertEquals(saved.getName(), optionalDrug.get().getName());
+        assertEquals(saved.getManufacturer(), optionalDrug.get().getManufacturer());
     }
 }

@@ -20,7 +20,7 @@ public class PharmacyDrugInfoMapper {
         );
     }
 
-    public DrugInfoResponse convertToDrugInfoResponse(PharmacyDrugInfo info) {
+    private DrugInfoResponse convertToDrugInfoResponse(PharmacyDrugInfo info) {
         return new DrugInfoResponse(
                 info.getDrug().getId(),
                 info.getDrug().getName(),

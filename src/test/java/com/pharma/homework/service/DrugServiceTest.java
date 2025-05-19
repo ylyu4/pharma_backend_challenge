@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,7 +34,7 @@ public class DrugServiceTest {
     DrugService drugService;
 
     @Test
-    void testCreateNewDrugSuccessfully() {
+    void test_create_new_drug_successfully() {
         // given
         CreateDrugRequest request = new CreateDrugRequest("VitaminB", "Unknown", "x123456", LocalDate.now(), 100);
         Drug drug = Drug.from(request);
@@ -53,11 +53,11 @@ public class DrugServiceTest {
     }
 
     @Test
-    void testAddExistingDrugQuantitySuccessfully() {
+    void test_add_existing_drug_quantity_successfully() {
         // given
         DrugAddRequest request = new DrugAddRequest(1L, 30);
         Drug drug = TestUtils.generateDrug(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
-        when(drugRepository.findDrugById(1L)).thenReturn(List.of(drug));
+        when(drugRepository.findById(1L)).thenReturn(Optional.of(drug));
         when(drugRepository.save(any())).thenReturn(drug);
         DrugResponse drugResponse = new DrugResponse(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 40);
         when(drugMapper.toResponse(any())).thenReturn(drugResponse);
@@ -69,14 +69,14 @@ public class DrugServiceTest {
         // then
         assertEquals(40, result.getStock());
         verify(drugRepository, times(1)).save(any());
-        verify(drugRepository, times(1)).findDrugById(any());
+        verify(drugRepository, times(1)).findById(any());
     }
 
     @Test
     void testThrowExceptionWhenDrugIdIsNotFound() {
         // given
         DrugAddRequest request = new DrugAddRequest(1L, 30);
-        when(drugRepository.findDrugById(1L)).thenReturn(List.of());
+        when(drugRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
         assertThrows(DrugNotFoundException.class, () -> drugService.addDrug(request));

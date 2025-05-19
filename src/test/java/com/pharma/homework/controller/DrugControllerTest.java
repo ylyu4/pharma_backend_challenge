@@ -121,7 +121,7 @@ public class DrugControllerTest {
                         "expiryDate": "2024-12-31",
                     }
                 """,})
-    void shouldReturnErrorWhenParamsAreInvalid(String name) throws Exception {
+    void should_return_error_when_params_are_invalid(String name) throws Exception {
         mockMvc.perform(post("/drug")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(name))
@@ -154,7 +154,7 @@ public class DrugControllerTest {
                         "id": 1L
                     }
                 """})
-    void shouldThrowErrorWhenParamsAreInvalid(String name) throws Exception {
+    void should_throw_error_when_params_are_invalid(String name) throws Exception {
         mockMvc.perform(put("/drug/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(name))
@@ -162,7 +162,7 @@ public class DrugControllerTest {
     }
 
     @Test
-    void shouldThrowNotFoundExceptionWhenIdDoesNotExist() throws Exception {
+    void should_throw_not_found_exception_when_id_does_not_exist() throws Exception {
         // given
         DrugAddRequest request = new DrugAddRequest(1L, 100);
 
