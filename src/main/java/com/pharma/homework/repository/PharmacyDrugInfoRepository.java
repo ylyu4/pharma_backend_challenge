@@ -15,10 +15,14 @@ public interface PharmacyDrugInfoRepository extends JpaRepository<PharmacyDrugIn
     Optional<PharmacyDrugInfo> findByPharmacyAndDrug(Pharmacy pharmacy, Drug drug);
 
     @Modifying
-    @Query("UPDATE PharmacyDrugInfo p SET p.dispensingAmount = p.dispensingAmount + :quantity "
-            + "WHERE p.pharmacy.id = :pharmacyId AND p.drug.id = :drugId AND (p.dispensingAmount + :quantity) <= p.maxAllocationAmount")
+    @Query("UPDATE PharmacyDrugInfo p SET p.dispensingAmount = p.dispensingAmount + :quantity, p.version = p.version + 1 "
+            + "WHERE p.pharmacy.id = :pharmacyId "
+            + "AND p.drug.id = :drugId "
+            + "AND (p.dispensingAmount + :quantity) <= p.maxAllocationAmount "
+            + "AND p.version = :version")
     int increaseDispensingAmount(@Param("pharmacyId") Long pharmacyId,
                                  @Param("drugId") Long drugId,
-                                 @Param("quantity") Integer quantity);
+                                 @Param("quantity") Integer quantity,
+                                 @Param("version") Integer version);
 
 }

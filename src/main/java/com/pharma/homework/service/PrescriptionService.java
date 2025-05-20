@@ -24,10 +24,8 @@ import com.pharma.homework.repository.PharmacyRepository;
 import com.pharma.homework.repository.PrescriptionRepository;
 import com.pharma.homework.service.model.DrugStockUpdate;
 import com.pharma.homework.service.model.PharmacyStockUpdate;
-import jakarta.transaction.Transactional;
-import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,17 +45,25 @@ public class PrescriptionService {
 
     private final AuditLogService auditLogService;
 
+    private final PrescriptionStatusService prescriptionStatusService;
+
+    private final StockUpdateService stockUpdateService;
+
 
     public PrescriptionService(PrescriptionRepository prescriptionRepository,
                                PharmacyRepository pharmacyRepository,
                                DrugRepository drugRepository,
                                PharmacyDrugInfoRepository pharmacyDrugInfoRepository,
-                               AuditLogService auditLogService) {
+                               AuditLogService auditLogService,
+                               PrescriptionStatusService prescriptionStatusService,
+                               StockUpdateService stockUpdateService) {
         this.prescriptionRepository = prescriptionRepository;
         this.pharmacyRepository = pharmacyRepository;
         this.drugRepository = drugRepository;
         this.pharmacyDrugInfoRepository = pharmacyDrugInfoRepository;
         this.auditLogService = auditLogService;
+        this.prescriptionStatusService = prescriptionStatusService;
+        this.stockUpdateService = stockUpdateService;
     }
 
     @Transactional
@@ -119,8 +125,8 @@ public class PrescriptionService {
                         pharmacy.getId(), drug.getId(), drugInfo.getQuantity()));
             }
 
-            updateDrugStocks(drugStockUpdates);
-            updatePharmacyAllocations(pharmacyStockUpdates);
+            stockUpdateService.updateDrugStocks(drugStockUpdates);
+            stockUpdateService.updatePharmacyAllocations(pharmacyStockUpdates);
 
             prescription.setStatus(PrescriptionStatus.FULFILLED);
             prescription.setUpdatedAt(LocalDateTime.now());
@@ -128,10 +134,8 @@ public class PrescriptionService {
             auditLogService.saveLogPrescription(succeedPrescription, AuditStatus.SUCCESS, null);
             return new PrescriptionStatusResponse(prescriptionId, PrescriptionStatus.FULFILLED);
         } catch (Exception ex) {
-            prescription.setStatus(PrescriptionStatus.REJECTED);
-            prescription.setUpdatedAt(LocalDateTime.now());
-            Prescription failedPrescription = prescriptionRepository.save(prescription);
-            auditLogService.saveLogPrescription(failedPrescription, AuditStatus.FAILURE, ex.getMessage());
+            Prescription rejectedPrescription = prescriptionStatusService.storeRejectPrescription(prescription);
+            auditLogService.saveLogPrescription(rejectedPrescription, AuditStatus.FAILURE, ex.getMessage());
             throw ex;
         }
     }
@@ -148,21 +152,6 @@ public class PrescriptionService {
 
         if (pharmacyDrugInfo.getMaxAllocationAmount() < pharmacyDrugInfo.getDispensingAmount() + requestQuantity) {
             throw new InsufficientPharmacyStockException(drug.getId());
-        }
-    }
-
-    @Retryable(retryFor = OptimisticLockingFailureException.class)
-    private void updateDrugStocks(List<DrugStockUpdate> updates) {
-        for (DrugStockUpdate update : updates) {
-            drugRepository.decreaseStock(update.drugId(), update.quantity());
-        }
-    }
-
-    @Retryable(retryFor = OptimisticLockingFailureException.class)
-    private void updatePharmacyAllocations(List<PharmacyStockUpdate> updates) {
-        for (PharmacyStockUpdate update : updates) {
-            pharmacyDrugInfoRepository.increaseDispensingAmount(
-                    update.pharmacyId(), update.drugId(), update.quantity());
         }
     }
 }

@@ -97,6 +97,14 @@ public class Prescription {
         this.status = status;
     }
 
+    public void setPharmacy(Pharmacy pharmacy) {
+        this.pharmacy = pharmacy;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setPrescriptionDrugs(List<PrescriptionDrugInfo> prescriptionDrugs) {
         this.prescriptionDrugs = prescriptionDrugs;
     }

@@ -41,7 +41,7 @@ public class AuditLogService {
                     AuditLogDrugInfo info = createAuditDrugInfo(pd, status);
                     info.setAuditLog(auditLog);
                     return info;
-                })                .collect(Collectors.toList());
+                }).collect(Collectors.toList());
         auditLog.setAuditLogDrugs(drugInfos);
         auditLogRepository.save(auditLog);
     }

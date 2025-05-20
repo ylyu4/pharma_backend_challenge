@@ -10,6 +10,7 @@ import com.pharma.homework.exception.InsufficientPharmacyStockException;
 import com.pharma.homework.exception.InvalidPrescriptionStatusException;
 import com.pharma.homework.exception.PharmacyNotFoundException;
 import com.pharma.homework.exception.PrescriptionNotFoundException;
+import com.pharma.homework.model.AuditStatus;
 import com.pharma.homework.model.Drug;
 import com.pharma.homework.model.Pharmacy;
 import com.pharma.homework.model.PharmacyDrugInfo;
@@ -29,15 +30,21 @@ import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,9 +66,16 @@ public class PrescriptionServiceTest {
     @Mock
     AuditLogService auditLogService;
 
+    @Mock
+    PrescriptionStatusService prescriptionStatusService;
+
+    @Mock
+    StockUpdateService stockUpdateService;
+
+
     @InjectMocks
     PrescriptionService prescriptionService;
-    
+
 
     @Test
     void should_save_prescription_successfully() {
@@ -77,22 +91,29 @@ public class PrescriptionServiceTest {
         );
 
         Pharmacy mockPharmacy = createPharmacy(pharmacyId);
-        Drug mockDrug = buildValidDrug();
-        PharmacyDrugInfo mockPharmacyDrugInfo = createPharmacyDrugInfo(100, 50);
-        Prescription prescription = new Prescription(mockPharmacy, 1L, PrescriptionStatus.CREATED, LocalDateTime.now(), LocalDateTime.now(), List.of(new PrescriptionDrugInfo(mockDrug, 5)));
+        Drug validDrug = buildValidDrug();
+        PharmacyDrugInfo validAllocation = createPharmacyDrugInfo(100, 50);
 
         when(pharmacyRepository.findById(pharmacyId)).thenReturn(Optional.of(mockPharmacy));
-        when(drugRepository.findById(drugId)).thenReturn(Optional.of(mockDrug));
-        when(pharmacyDrugInfoRepository.findByPharmacyAndDrug(mockPharmacy, mockDrug))
-                .thenReturn(Optional.of(mockPharmacyDrugInfo));
-        when(prescriptionRepository.save(any())).thenReturn(prescription);
+        when(drugRepository.findById(drugId)).thenReturn(Optional.of(validDrug));
+        when(pharmacyDrugInfoRepository.findByPharmacyAndDrug(mockPharmacy, validDrug))
+                .thenReturn(Optional.of(validAllocation));
+        when(prescriptionRepository.save(any(Prescription.class))).thenAnswer(invocation -> {
+            Prescription p = invocation.getArgument(0);
+            p.setId(1L);
+            return p;
+        });
 
         // when
         PrescriptionStatusResponse response = prescriptionService.save(request);
 
         // then
-        assertEquals(PrescriptionStatus.CREATED, response.prescriptionStatus());
-        verify(prescriptionRepository).save(any());
+        assertAll(
+                () -> assertEquals(PrescriptionStatus.CREATED, response.prescriptionStatus()),
+                () -> assertNotNull(response.prescriptionId()),
+                () -> verify(prescriptionRepository).save(any(Prescription.class)),
+                () -> verify(auditLogService, never()).saveLogPrescription(any(), eq(AuditStatus.FAILURE), any())
+        );
     }
 
     @Test
@@ -207,33 +228,39 @@ public class PrescriptionServiceTest {
     @Test
     void test_fulfill_prescription_successfully() {
         // given
-        Prescription prescription = buildValidPrescription(PrescriptionStatus.CREATED);
-        PharmacyDrugInfo pharmacyDrugInfo = buildValidPharmacyDrugInfo();
-        Drug drug = buildValidDrug();
+        Drug validDrug = buildValidDrug();
+        Prescription prescription = buildValidPrescriptionWithDrugs(
+                PrescriptionStatus.CREATED,
+                validDrug,
+                5
+        );
+        PharmacyDrugInfo pharmacyDrugInfo = createPharmacyDrugInfo(100, 50);
 
         when(prescriptionRepository.findById(1L)).thenReturn(Optional.of(prescription));
         when(pharmacyDrugInfoRepository.findByPharmacyAndDrug(any(), any()))
                 .thenReturn(Optional.of(pharmacyDrugInfo));
-        when(drugRepository.decreaseStock(any(), any())).thenReturn(1);
-        when(pharmacyDrugInfoRepository.increaseDispensingAmount(any(), any(), any()))
-                .thenReturn(1);
-        doNothing().when(auditLogService).saveLogPrescription(any(), any(), any());
+        doNothing().when(stockUpdateService).updateDrugStocks(any());
+        doNothing().when(stockUpdateService).updatePharmacyAllocations(any());
+        when(prescriptionRepository.save(prescription)).thenReturn(prescription);
 
         // when
         PrescriptionStatusResponse response = prescriptionService.fulfillPrescription(1L);
 
         // then
-        assertThat(response.prescriptionStatus()).isEqualTo(PrescriptionStatus.FULFILLED);
-        verify(prescriptionRepository, times(1)).save(prescription);
-        assertThat(prescription.getStatus()).isEqualTo(PrescriptionStatus.FULFILLED);
+        assertAll(
+                () -> assertEquals(PrescriptionStatus.FULFILLED, response.prescriptionStatus()),
+                () -> verify(prescriptionRepository).save(prescription),
+                () -> verify(auditLogService).saveLogPrescription(prescription, AuditStatus.SUCCESS, null)
+        );
     }
+
 
     @Test
     void test_fulfill_prescription_not_exists() {
         // given
         when(prescriptionRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // when
+        // then
         assertThrows(PrescriptionNotFoundException.class, () -> prescriptionService.fulfillPrescription(1L));
     }
 
@@ -257,6 +284,12 @@ public class PrescriptionServiceTest {
         when(prescriptionRepository.findById(1L)).thenReturn(Optional.of(prescription));
         when(pharmacyDrugInfoRepository.findByPharmacyAndDrug(any(), any()))
                 .thenReturn(Optional.of(buildValidPharmacyDrugInfo()));
+        when(prescriptionStatusService.storeRejectPrescription(any()))
+                .thenAnswer(invocation -> {
+                    Prescription rejected = invocation.getArgument(0);
+                    rejected.setStatus(PrescriptionStatus.REJECTED);
+                    return rejected;
+                });
 
         // then
         assertThrows(DrugExpireException.class, () -> prescriptionService.fulfillPrescription(1L));
@@ -275,6 +308,12 @@ public class PrescriptionServiceTest {
         when(pharmacyDrugInfoRepository.findByPharmacyAndDrug(any(), any()))
                 .thenReturn(Optional.of(buildValidPharmacyDrugInfo()));
         doNothing().when(auditLogService).saveLogPrescription(any(), any(), any());
+        when(prescriptionStatusService.storeRejectPrescription(any()))
+                .thenAnswer(invocation -> {
+                    Prescription rejected = invocation.getArgument(0);
+                    rejected.setStatus(PrescriptionStatus.REJECTED);
+                    return rejected;
+                });
 
         // then
         assertThrows(InsufficientGlobalStockException.class, () -> prescriptionService.fulfillPrescription(1L));
@@ -289,15 +328,23 @@ public class PrescriptionServiceTest {
         invalidAllocation.setMaxAllocationAmount(5);
         invalidAllocation.setDispensingAmount(5);
 
+        Prescription rejectedPrescription = new Prescription();
+        rejectedPrescription.setStatus(PrescriptionStatus.REJECTED);
+
         when(prescriptionRepository.findById(1L)).thenReturn(Optional.of(prescription));
         when(pharmacyDrugInfoRepository.findByPharmacyAndDrug(any(), any()))
                 .thenReturn(Optional.of(invalidAllocation));
+        when(prescriptionStatusService.storeRejectPrescription(any()))
+                .thenReturn(rejectedPrescription);
         doNothing().when(auditLogService).saveLogPrescription(any(), any(), any());
 
         // then
         assertThrows(InsufficientPharmacyStockException.class, () -> prescriptionService.fulfillPrescription(1L));
-        assertThat(prescription.getStatus()).isEqualTo(PrescriptionStatus.REJECTED);
+
+        verify(prescriptionStatusService).storeRejectPrescription(prescription);
+        verify(auditLogService).saveLogPrescription(eq(rejectedPrescription), eq(AuditStatus.FAILURE), any(String.class));
     }
+
 
     @Test
     void test_fulfill_prescription_request_conflict() {
@@ -308,12 +355,28 @@ public class PrescriptionServiceTest {
         when(prescriptionRepository.findById(1L)).thenReturn(Optional.of(prescription));
         when(pharmacyDrugInfoRepository.findByPharmacyAndDrug(any(), any()))
                 .thenReturn(Optional.of(pharmacyDrugInfo));
-        when(drugRepository.decreaseStock(any(), any())).thenThrow(OptimisticLockingFailureException.class);
+        doThrow(new OptimisticLockingFailureException("conflict"))
+                .when(stockUpdateService).updateDrugStocks(any());
+
+        when(prescriptionStatusService.storeRejectPrescription(any())).thenReturn(prescription);
+        when(prescriptionStatusService.storeRejectPrescription(any()))
+                .thenAnswer(invocation -> {
+                    Prescription rejected = invocation.getArgument(0);
+                    rejected.setStatus(PrescriptionStatus.REJECTED);
+                    return rejected;
+                });
+
+        // when
+        Exception ex = assertThrows(OptimisticLockingFailureException.class,
+                () -> prescriptionService.fulfillPrescription(1L));
 
         // then
-        assertThrows(OptimisticLockingFailureException.class, () -> prescriptionService.fulfillPrescription(1L));
+        assertThat(ex).isInstanceOf(OptimisticLockingFailureException.class);
         assertThat(prescription.getStatus()).isEqualTo(PrescriptionStatus.REJECTED);
+        verify(auditLogService).saveLogPrescription(eq(prescription), eq(AuditStatus.FAILURE), any(String.class));
     }
+
+
 
     private Prescription buildValidPrescription(PrescriptionStatus status) {
         Pharmacy pharmacy = new Pharmacy();
@@ -352,11 +415,31 @@ public class PrescriptionServiceTest {
     }
 
 
-    private PharmacyDrugInfo createPharmacyDrugInfo(int maxAllocationAmount, int dispensingAmount) {
-        PharmacyDrugInfo pharmacyDrugInfo = new PharmacyDrugInfo();
-        pharmacyDrugInfo.setMaxAllocationAmount(maxAllocationAmount);
-        pharmacyDrugInfo.setDispensingAmount(dispensingAmount);
-        return pharmacyDrugInfo;
+    private Prescription buildValidPrescriptionWithDrugs(PrescriptionStatus status, Drug drug, int quantity) {
+        Pharmacy pharmacy = new Pharmacy();
+        pharmacy.setId(1L);
+
+        PrescriptionDrugInfo drugInfo = new PrescriptionDrugInfo(drug, quantity);
+        Prescription prescription = new Prescription(
+                pharmacy,
+                1L,
+                status,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                new ArrayList<>()
+        );
+
+        drugInfo.setPrescription(prescription);
+        prescription.getPrescriptionDrugs().add(drugInfo);
+
+        return prescription;
     }
 
+    private PharmacyDrugInfo createPharmacyDrugInfo(int maxAllocation, int dispensed) {
+        PharmacyDrugInfo info = new PharmacyDrugInfo();
+        info.setMaxAllocationAmount(maxAllocation);
+        info.setDispensingAmount(dispensed);
+        info.setVersion(0);
+        return info;
+    }
 }

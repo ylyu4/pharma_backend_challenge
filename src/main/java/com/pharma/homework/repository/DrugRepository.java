@@ -13,7 +13,10 @@ import java.util.List;
 public interface DrugRepository extends JpaRepository<Drug, Long> {
 
     @Modifying
-    @Query("UPDATE Drug d SET d.stock = d.stock - :quantity WHERE d.id = :drugId AND d.stock >= :quantity")
-    int decreaseStock(@Param("drugId") Long drugId, @Param("quantity") Integer quantity);
+    @Query("UPDATE Drug d SET d.stock = d.stock - :quantity, d.version = d.version + 1 "
+            + "WHERE d.id = :drugId AND d.stock >= :quantity AND d.version = :version")
+    int decreaseStock(@Param("drugId") Long drugId,
+                                 @Param("quantity") Integer quantity,
+                                 @Param("version") Integer version);
 
 }
