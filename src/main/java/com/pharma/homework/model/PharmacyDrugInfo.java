@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @IdClass(PharmacyDrugInfo.PharmacyDrugId.class)
@@ -86,6 +87,19 @@ public class PharmacyDrugInfo {
 
         public Long getDrug() {
             return drug;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PharmacyDrugId that = (PharmacyDrugId) o;
+            return Objects.equals(pharmacy, that.pharmacy) && Objects.equals(drug, that.drug);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(pharmacy, drug);
         }
     }
 }
