@@ -62,26 +62,26 @@ public class PrescriptionService {
 
     @Transactional
     public PrescriptionStatusResponse save(PrescriptionRequest prescriptionRequest) {
-        Long pharmacyId = prescriptionRequest.getPharmacyId();
+        Long pharmacyId = prescriptionRequest.pharmacyId();
         Pharmacy pharmacy = pharmacyRepository.findById(pharmacyId).orElseThrow(() ->
                 new PharmacyNotFoundException(pharmacyId));
-        List<PrescriptionRequest.DrugRequestInfo> drugRequests = prescriptionRequest.getDrugs();
+        List<PrescriptionRequest.DrugRequestInfo> drugRequests = prescriptionRequest.drugs();
         Prescription prescription = new Prescription(pharmacy,
-                prescriptionRequest.getPatientId(),
+                prescriptionRequest.patientId(),
                 PrescriptionStatus.CREATED,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 new ArrayList<>());
         List<PrescriptionDrugInfo> prescriptionDrugInfoList = new ArrayList<>();
         for (PrescriptionRequest.DrugRequestInfo drugRequest : drugRequests) {
-            Long drugId = drugRequest.getDrugId();
+            Long drugId = drugRequest.drugId();
             Drug drug = drugRepository.findById(drugId).orElseThrow(() -> new DrugNotFoundException(drugId));
             PharmacyDrugInfo pharmacyDrugInfo = pharmacyDrugInfoRepository.findByPharmacyAndDrug(pharmacy, drug).orElseThrow(() ->
                     new PharmacyDrugInfoNotFoundException(pharmacyId, drugId));
-            validateDrug(drug, pharmacyDrugInfo, drugRequest.getQuantity());
+            validateDrug(drug, pharmacyDrugInfo, drugRequest.quantity());
 
-            PrescriptionDrugInfo prescriptionDrugInfo = new PrescriptionDrugInfo(drug, drugRequest.getQuantity());
-            prescriptionDrugInfo.setPrescription(prescription); // Set prescription reference
+            PrescriptionDrugInfo prescriptionDrugInfo = new PrescriptionDrugInfo(drug, drugRequest.quantity());
+            prescriptionDrugInfo.setPrescription(prescription);
             prescriptionDrugInfoList.add(prescriptionDrugInfo);
         }
         prescription.setPrescriptionDrugs(prescriptionDrugInfoList);

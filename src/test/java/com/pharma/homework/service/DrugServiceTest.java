@@ -41,7 +41,7 @@ public class DrugServiceTest {
         DrugResponse result = drugService.createNewDrug(request);
 
         // then
-        assertNotNull(result.getId());
+        assertNotNull(result.id());
         verify(drugRepository, times(1)).save(any());
     }
 
@@ -57,7 +57,7 @@ public class DrugServiceTest {
         DrugResponse result = drugService.addDrug(request);
 
         // then
-        assertEquals(40, result.getStock());
+        assertEquals(40, result.stock());
         verify(drugRepository, times(1)).save(any());
         verify(drugRepository, times(1)).findById(any());
     }

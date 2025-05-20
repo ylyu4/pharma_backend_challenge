@@ -2,33 +2,11 @@ package com.pharma.homework.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 
-public class DrugAddRequest {
+public record DrugAddRequest(
 
     @NotNull(message = "Id can not be null")
-    private Long id;
+    Long id,
 
     @NotNull(message = "Update stock can not be null")
-    private Integer addedStock;
-
-    public Long getId() {
-        return id;
-    }
-
-    public Integer getAddedStock() {
-        return addedStock;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setAddedStock(Integer addedStock) {
-        this.addedStock = addedStock;
-    }
-
-    public DrugAddRequest(Long id, Integer addedStock) {
-        this.id = id;
-        this.addedStock = addedStock;
-    }
-
+    Integer addedStock) {
 }

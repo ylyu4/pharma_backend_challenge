@@ -30,12 +30,12 @@ public class DrugService {
 
     @Transactional
     public DrugResponse addDrug(DrugAddRequest request) {
-        Optional<Drug> optionalDrug = drugRepository.findById(request.getId());
+        Optional<Drug> optionalDrug = drugRepository.findById(request.id());
         if (optionalDrug.isEmpty()) {
-            throw new DrugNotFoundException(request.getId());
+            throw new DrugNotFoundException(request.id());
         }
         Drug updatedDrug = optionalDrug.get();
-        updatedDrug.addStock(request.getAddedStock());
+        updatedDrug.addStock(request.addedStock());
         Drug savedDrug = drugRepository.save(updatedDrug);
         return DrugMapper.toResponse(savedDrug);
     }

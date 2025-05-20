@@ -91,7 +91,7 @@ public class PrescriptionServiceTest {
         PrescriptionStatusResponse response = prescriptionService.save(request);
 
         // then
-        assertEquals(PrescriptionStatus.CREATED, response.getPrescriptionStatus());
+        assertEquals(PrescriptionStatus.CREATED, response.prescriptionStatus());
         verify(prescriptionRepository).save(any());
     }
 
@@ -223,7 +223,7 @@ public class PrescriptionServiceTest {
         PrescriptionStatusResponse response = prescriptionService.fulfillPrescription(1L);
 
         // then
-        assertThat(response.getPrescriptionStatus()).isEqualTo(PrescriptionStatus.FULFILLED);
+        assertThat(response.prescriptionStatus()).isEqualTo(PrescriptionStatus.FULFILLED);
         verify(prescriptionRepository, times(1)).save(prescription);
         assertThat(prescription.getStatus()).isEqualTo(PrescriptionStatus.FULFILLED);
     }

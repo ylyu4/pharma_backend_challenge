@@ -102,11 +102,11 @@ public class Drug {
 
     public static Drug from(CreateDrugRequest request) {
         Drug drug = new Drug();
-        drug.setName(request.getName());
-        drug.setManufacturer(request.getManufacturer());
-        drug.setBatchNumber(request.getBatchNumber());
-        drug.setExpiryDate(request.getExpiryDate());
-        drug.setStock(request.getStock());
+        drug.setName(request.name());
+        drug.setManufacturer(request.manufacturer());
+        drug.setBatchNumber(request.batchNumber());
+        drug.setExpiryDate(request.expiryDate());
+        drug.setStock(request.stock());
         return drug;
     }
 }

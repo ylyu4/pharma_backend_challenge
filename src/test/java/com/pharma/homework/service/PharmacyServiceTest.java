@@ -55,9 +55,9 @@ public class PharmacyServiceTest {
 
         // then
         assertEquals(2, result.size());
-        assertEquals(1L, result.get(0).getPharmaciesId());
-        assertEquals(2L, result.get(1).getPharmaciesId());
-        assertEquals(50, result.get(1).getDrugInfoList().get(0).getDispensingAmount());
-        assertEquals(200, result.get(1).getDrugInfoList().get(0).getMaxAllocationAmount());
+        assertEquals(1L, result.get(0).pharmaciesId());
+        assertEquals(2L, result.get(1).pharmaciesId());
+        assertEquals(50, result.get(1).drugInfoList().get(0).dispensingAmount());
+        assertEquals(200, result.get(1).drugInfoList().get(0).maxAllocationAmount());
     }
 }
