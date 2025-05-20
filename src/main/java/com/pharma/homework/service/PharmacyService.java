@@ -15,16 +15,13 @@ public class PharmacyService {
 
     private final PharmacyRepository pharmacyRepository;
 
-    private final PharmacyDrugInfoMapper pharmacyDrugInfoMapper;
-
-    public PharmacyService(PharmacyRepository pharmacyRepository, PharmacyDrugInfoMapper pharmacyDrugInfoMapper) {
+    public PharmacyService(PharmacyRepository pharmacyRepository) {
         this.pharmacyRepository = pharmacyRepository;
-        this.pharmacyDrugInfoMapper = pharmacyDrugInfoMapper;
     }
 
     @Transactional(readOnly = true)
     public List<PharmaciesResponse> getAllPharmacyDrugInfo() {
         List<Pharmacy> pharmacies = pharmacyRepository.findAllWithDrugInfo();
-        return pharmacies.stream().map(pharmacyDrugInfoMapper::toResponse).toList();
+        return pharmacies.stream().map(PharmacyDrugInfoMapper::toResponse).toList();
     }
 }

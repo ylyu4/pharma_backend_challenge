@@ -5,7 +5,6 @@ import com.pharma.homework.dto.request.CreateDrugRequest;
 import com.pharma.homework.dto.request.DrugAddRequest;
 import com.pharma.homework.dto.response.DrugResponse;
 import com.pharma.homework.exception.DrugNotFoundException;
-import com.pharma.homework.mapper.DrugMapper;
 import com.pharma.homework.model.Drug;
 import com.pharma.homework.service.DrugService;
 import org.junit.jupiter.api.Test;
@@ -33,9 +32,6 @@ public class DrugControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private DrugMapper drugMapper;
-
-    @MockBean
     private DrugService drugService;
 
     @Autowired
@@ -48,7 +44,6 @@ public class DrugControllerTest {
         Drug drug = Drug.from(request);
         drug.setId(1L);
         DrugResponse drugResponse = new DrugResponse(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 100);
-        when(drugMapper.toResponse(any())).thenReturn(drugResponse);
         when(drugService.createNewDrug(any())).thenReturn(drugResponse);
 
         // then
@@ -133,7 +128,6 @@ public class DrugControllerTest {
         // given
         DrugAddRequest request = new DrugAddRequest(1L, 100);
         DrugResponse drugResponse = new DrugResponse(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 200);
-        when(drugMapper.toResponse(any())).thenReturn(drugResponse);
         when(drugService.addDrug(any())).thenReturn(drugResponse);
 
         // then

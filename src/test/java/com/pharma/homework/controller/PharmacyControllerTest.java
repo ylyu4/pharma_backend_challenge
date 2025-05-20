@@ -3,7 +3,6 @@ package com.pharma.homework.controller;
 import com.pharma.homework.TestUtils;
 import com.pharma.homework.dto.response.DrugInfoResponse;
 import com.pharma.homework.dto.response.PharmaciesResponse;
-import com.pharma.homework.mapper.PharmacyDrugInfoMapper;
 import com.pharma.homework.model.Drug;
 import com.pharma.homework.model.Pharmacy;
 import com.pharma.homework.model.PharmacyDrugInfo;
@@ -33,10 +32,6 @@ public class PharmacyControllerTest {
     @MockBean
     PharmacyService pharmacyService;
 
-    @MockBean
-    PharmacyDrugInfoMapper pharmacyDrugInfoMapper;
-
-
     @Test
     void should_return_all_pharmacies_info() throws Exception {
         // given
@@ -50,8 +45,6 @@ public class PharmacyControllerTest {
                 List.of(new DrugInfoResponse(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 200, 50)));
         PharmaciesResponse response2 = new PharmaciesResponse(2L, "Pharmacy2", "Address2", "Phone2",
                 List.of(new DrugInfoResponse(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 200, 50)));
-        when(pharmacyDrugInfoMapper.toResponse(pharmacy1)).thenReturn(response1);
-        when(pharmacyDrugInfoMapper.toResponse(pharmacy2)).thenReturn(response2);
 
         when(pharmacyService.getAllPharmacyDrugInfo()).thenReturn(List.of(response1, response2));
 

@@ -4,7 +4,6 @@ package com.pharma.homework.service;
 import com.pharma.homework.TestUtils;
 import com.pharma.homework.dto.response.DrugInfoResponse;
 import com.pharma.homework.dto.response.PharmaciesResponse;
-import com.pharma.homework.mapper.PharmacyDrugInfoMapper;
 import com.pharma.homework.model.Drug;
 import com.pharma.homework.model.Pharmacy;
 import com.pharma.homework.model.PharmacyDrugInfo;
@@ -29,8 +28,6 @@ public class PharmacyServiceTest {
     @Mock
     private PharmacyRepository pharmacyRepository;
 
-    @Mock
-    private PharmacyDrugInfoMapper pharmacyDrugInfoMapper;
 
     @InjectMocks
     private PharmacyService pharmacyService;
@@ -52,8 +49,6 @@ public class PharmacyServiceTest {
                 List.of(new DrugInfoResponse(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 200, 50)));
 
         when(pharmacyRepository.findAllWithDrugInfo()).thenReturn(pharmacies);
-        when(pharmacyDrugInfoMapper.toResponse(pharmacy1)).thenReturn(response1);
-        when(pharmacyDrugInfoMapper.toResponse(pharmacy2)).thenReturn(response2);
 
         // when
         List<PharmaciesResponse> result = pharmacyService.getAllPharmacyDrugInfo();

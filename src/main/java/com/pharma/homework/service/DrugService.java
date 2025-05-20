@@ -18,17 +18,14 @@ public class DrugService {
 
     private final DrugRepository drugRepository;
 
-    private final DrugMapper drugMapper;
-
-    public DrugService(DrugRepository drugRepository, DrugMapper drugMapper) {
+    public DrugService(DrugRepository drugRepository) {
         this.drugRepository = drugRepository;
-        this.drugMapper = drugMapper;
     }
 
     @Transactional
     public DrugResponse createNewDrug(CreateDrugRequest request) {
         Drug savedDrug = drugRepository.save(Drug.from(request));
-        return drugMapper.toResponse(savedDrug);
+        return DrugMapper.toResponse(savedDrug);
     }
 
     @Transactional
@@ -40,6 +37,6 @@ public class DrugService {
         Drug updatedDrug = optionalDrug.get();
         updatedDrug.addStock(request.getAddedStock());
         Drug savedDrug = drugRepository.save(updatedDrug);
-        return drugMapper.toResponse(savedDrug);
+        return DrugMapper.toResponse(savedDrug);
     }
 }
