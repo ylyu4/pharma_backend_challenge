@@ -11,6 +11,8 @@ import com.pharma.homework.repository.PharmacyDrugInfoRepository;
 import com.pharma.homework.repository.PharmacyRepository;
 import com.pharma.homework.service.model.DrugStockUpdate;
 import com.pharma.homework.service.model.PharmacyStockUpdate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.List;
 
 @Service
 public class StockUpdateService {
+    private static final Logger logger = LoggerFactory.getLogger(StockUpdateService.class);
 
     private final DrugRepository drugRepository;
     private final PharmacyRepository pharmacyRepository;
@@ -39,8 +42,10 @@ public class StockUpdateService {
             Drug drug = drugRepository.findById(drugId).orElseThrow(() -> new DrugNotFoundException(update.drugId()));
             int updated = drugRepository.decreaseStock(update.drugId(), update.quantity(), drug.getVersion());
             if (updated == 0) {
+                logger.warn("Stock update failed for drug: {} due to version conflict", drugId);
                 throw new OptimisticLockingFailureException("Drug stock update failed due to version conflict");
             }
+            logger.info("Successfully updated stock for drug: {}", drugId);
         }
     }
 
@@ -59,8 +64,10 @@ public class StockUpdateService {
                     update.pharmacyId(), update.drugId(), update.quantity(), pharmacyDrugInfo.getVersion());
 
             if (updated == 0) {
+                logger.warn("Stock update failed for pharmacy: {} and drug: {}", update.pharmacyId(), update.drugId());
                 throw new OptimisticLockingFailureException("Pharmacy stock update failed due to version conflict");
             }
+            logger.info("Successfully updated stock for pharmacy: {} and drug: {}", update.pharmacyId(), update.drugId());
         }
     }
 }

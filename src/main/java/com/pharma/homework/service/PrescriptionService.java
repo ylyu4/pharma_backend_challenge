@@ -114,9 +114,8 @@ public class PrescriptionService {
                 Drug drug = drugInfo.getDrug();
                 Pharmacy pharmacy = prescription.getPharmacy();
                 PharmacyDrugInfo pharmacyDrugInfo = pharmacyDrugInfoRepository
-                        .findByPharmacyAndDrug(prescription.getPharmacy(), drug)
-                        .orElseThrow(() -> new PharmacyDrugInfoNotFoundException(
-                                prescription.getPharmacy().getId(), drug.getId()));
+                        .findByPharmacyAndDrug(prescription.getPharmacy(), drug).orElseThrow(() ->
+                                new PharmacyDrugInfoNotFoundException(prescription.getPharmacy().getId(), drug.getId()));
 
                 validateDrug(drug, pharmacyDrugInfo, drugInfo.getQuantity());
 
