@@ -43,11 +43,6 @@ public class PharmacyServiceTest {
         Pharmacy pharmacy2 = new Pharmacy(2L, "Pharmacy2", "Address2", "Phone2");
         pharmacy2.setDrugInfoSet(Set.of(drugInfo));
         List<Pharmacy> pharmacies = List.of(pharmacy1, pharmacy2);
-        PharmaciesResponse response1 = new PharmaciesResponse(1L, "Pharmacy1", "Address1", "Phone1",
-                List.of(new DrugInfoResponse(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 200, 50)));
-        PharmaciesResponse response2 = new PharmaciesResponse(2L, "Pharmacy2", "Address2", "Phone2",
-                List.of(new DrugInfoResponse(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 200, 50)));
-
         when(pharmacyRepository.findAllWithDrugInfo()).thenReturn(pharmacies);
 
         // when

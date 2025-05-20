@@ -48,13 +48,13 @@ public class DrugServiceTest {
     @Test
     void test_add_existing_drug_quantity_successfully() {
         // given
-        DrugAddRequest request = new DrugAddRequest(1L, 30);
+        DrugAddRequest request = new DrugAddRequest(30);
         Drug drug = TestUtils.generateDrug(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
         when(drugRepository.findById(1L)).thenReturn(Optional.of(drug));
         when(drugRepository.save(any())).thenReturn(drug);
 
         // when
-        DrugResponse result = drugService.addDrug(request);
+        DrugResponse result = drugService.addDrug(1L, request);
 
         // then
         assertEquals(40, result.stock());
@@ -65,11 +65,11 @@ public class DrugServiceTest {
     @Test
     void testThrowExceptionWhenDrugIdIsNotFound() {
         // given
-        DrugAddRequest request = new DrugAddRequest(1L, 30);
+        DrugAddRequest request = new DrugAddRequest(30);
         when(drugRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
-        assertThrows(DrugNotFoundException.class, () -> drugService.addDrug(request));
+        assertThrows(DrugNotFoundException.class, () -> drugService.addDrug(1L, request));
     }
 
 }

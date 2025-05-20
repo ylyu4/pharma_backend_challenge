@@ -29,10 +29,10 @@ public class DrugService {
     }
 
     @Transactional
-    public DrugResponse addDrug(DrugAddRequest request) {
-        Optional<Drug> optionalDrug = drugRepository.findById(request.id());
+    public DrugResponse addDrug(Long id, DrugAddRequest request) {
+        Optional<Drug> optionalDrug = drugRepository.findById(id);
         if (optionalDrug.isEmpty()) {
-            throw new DrugNotFoundException(request.id());
+            throw new DrugNotFoundException(id);
         }
         Drug updatedDrug = optionalDrug.get();
         updatedDrug.addStock(request.addedStock());

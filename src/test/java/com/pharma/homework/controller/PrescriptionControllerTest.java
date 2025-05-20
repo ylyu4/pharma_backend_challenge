@@ -22,6 +22,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PrescriptionController.class)
@@ -50,10 +51,10 @@ class PrescriptionControllerTest {
         when(prescriptionService.save(any())).thenReturn(mockResponse);
 
         // then
-        mockMvc.perform(post("/prescription")
+        mockMvc.perform(post("/prescriptions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.prescriptionId").value(999L))
                 .andExpect(jsonPath("$.prescriptionStatus").value("CREATED"));
     }
@@ -72,7 +73,7 @@ class PrescriptionControllerTest {
         """;
 
         // then
-        mockMvc.perform(post("/prescription")
+        mockMvc.perform(post("/prescriptions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidJson))
                 .andExpect(status().isBadRequest())
@@ -89,7 +90,7 @@ class PrescriptionControllerTest {
         );
 
         // then
-        mockMvc.perform(post("/prescription")
+        mockMvc.perform(post("/prescriptions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -106,7 +107,7 @@ class PrescriptionControllerTest {
         );
 
         // then
-        mockMvc.perform(post("/prescription")
+        mockMvc.perform(post("/prescriptions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -127,7 +128,7 @@ class PrescriptionControllerTest {
         """;
 
         // then
-        mockMvc.perform(post("/prescription")
+        mockMvc.perform(post("/prescriptions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidJson))
                 .andExpect(status().isBadRequest())
@@ -144,7 +145,7 @@ class PrescriptionControllerTest {
         );
 
         // then
-        mockMvc.perform(post("/prescription")
+        mockMvc.perform(post("/prescriptions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -163,7 +164,7 @@ class PrescriptionControllerTest {
                 .thenReturn(mockResponse);
 
         // then
-        mockMvc.perform(post("/prescription/{id}/fulfill", prescriptionId))
+        mockMvc.perform(put("/prescriptions/{id}/status/fulfilled", prescriptionId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.prescriptionId").value(prescriptionId))
                 .andExpect(jsonPath("$.prescriptionStatus").value("FULFILLED"));
@@ -177,7 +178,7 @@ class PrescriptionControllerTest {
                 .thenThrow(new PrescriptionNotFoundException(invalidId));
 
         // then
-        mockMvc.perform(post("/prescription/{id}/fulfill", invalidId))
+        mockMvc.perform(put("/prescriptions/{id}/status/fulfilled", invalidId))
                 .andExpect(status().isNotFound());
     }
 
@@ -189,7 +190,7 @@ class PrescriptionControllerTest {
         when(prescriptionService.fulfillPrescription(prescriptionId))
                 .thenThrow(new InvalidPrescriptionStatusException(prescriptionId, currentStatus));
 
-        mockMvc.perform(post("/prescription/{id}/fulfill", prescriptionId))
+        mockMvc.perform(put("/prescriptions/{id}/status/fulfilled", prescriptionId))
                 .andExpect(status().isBadRequest());
     }
 
@@ -200,7 +201,7 @@ class PrescriptionControllerTest {
         when(prescriptionService.fulfillPrescription(prescriptionId))
                 .thenThrow(new OptimisticLockingFailureException("Concurrent modification occurred"));
 
-        mockMvc.perform(post("/prescription/{id}/fulfill", prescriptionId))
+        mockMvc.perform(put("/prescriptions/{id}/status/fulfilled", prescriptionId))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("IS_CONFLICT"));
     }
@@ -213,7 +214,7 @@ class PrescriptionControllerTest {
         when(prescriptionService.fulfillPrescription(prescriptionId))
                 .thenThrow(new DrugExpireException(drugId));
 
-        mockMvc.perform(post("/prescription/{id}/fulfill", prescriptionId))
+        mockMvc.perform(put("/prescriptions/{id}/status/fulfilled", prescriptionId))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
     }

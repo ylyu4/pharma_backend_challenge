@@ -31,8 +31,8 @@ public class AuditLogService {
         this.drugRepository = drugRepository;
     }
 
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Async // 异步执行操作
+    @Transactional(propagation = Propagation.REQUIRES_NEW) // 开一个新事务来保存log，与外部事务隔离
     public void saveLogPrescription(Prescription prescription, AuditStatus status, String errorMessage) {
         AuditLog auditLog = new AuditLog(prescription, prescription.getPatientId(), prescription.getPharmacy().getId(),
                 status, errorMessage, LocalDateTime.now(), new ArrayList<>());

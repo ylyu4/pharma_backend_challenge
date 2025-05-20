@@ -80,15 +80,7 @@ public class PrescriptionService {
                 new ArrayList<>());
         List<PrescriptionDrugInfo> prescriptionDrugInfoList = new ArrayList<>();
         for (PrescriptionRequest.DrugRequestInfo drugRequest : drugRequests) {
-            Long drugId = drugRequest.drugId();
-            Drug drug = drugRepository.findById(drugId).orElseThrow(() -> new DrugNotFoundException(drugId));
-            PharmacyDrugInfo pharmacyDrugInfo = pharmacyDrugInfoRepository.findByPharmacyAndDrug(pharmacy, drug).orElseThrow(() ->
-                    new PharmacyDrugInfoNotFoundException(pharmacyId, drugId));
-            validateDrug(drug, pharmacyDrugInfo, drugRequest.quantity());
-
-            PrescriptionDrugInfo prescriptionDrugInfo = new PrescriptionDrugInfo(drug, drugRequest.quantity());
-            prescriptionDrugInfo.setPrescription(prescription);
-            prescriptionDrugInfoList.add(prescriptionDrugInfo);
+            generateDrugInfoFromRequest(drugRequest, pharmacy, pharmacyId, prescription, prescriptionDrugInfoList);
         }
         prescription.setPrescriptionDrugs(prescriptionDrugInfoList);
 
@@ -111,32 +103,60 @@ public class PrescriptionService {
 
         try {
             for (PrescriptionDrugInfo drugInfo : prescription.getPrescriptionDrugs()) {
-                Drug drug = drugInfo.getDrug();
-                Pharmacy pharmacy = prescription.getPharmacy();
-                PharmacyDrugInfo pharmacyDrugInfo = pharmacyDrugInfoRepository
-                        .findByPharmacyAndDrug(prescription.getPharmacy(), drug).orElseThrow(() ->
-                                new PharmacyDrugInfoNotFoundException(prescription.getPharmacy().getId(), drug.getId()));
-
-                validateDrug(drug, pharmacyDrugInfo, drugInfo.getQuantity());
-
-                drugStockUpdates.add(new DrugStockUpdate(drug.getId(), drugInfo.getQuantity()));
-                pharmacyStockUpdates.add(new PharmacyStockUpdate(
-                        pharmacy.getId(), drug.getId(), drugInfo.getQuantity()));
+                processPrescriptionDrugInfo(drugInfo, prescription, drugStockUpdates, pharmacyStockUpdates);
             }
 
             stockUpdateService.updateDrugStocks(drugStockUpdates);
             stockUpdateService.updatePharmacyAllocations(pharmacyStockUpdates);
 
-            prescription.setStatus(PrescriptionStatus.FULFILLED);
-            prescription.setUpdatedAt(LocalDateTime.now());
-            Prescription succeedPrescription = prescriptionRepository.save(prescription);
-            auditLogService.saveLogPrescription(succeedPrescription, AuditStatus.SUCCESS, null);
+            Prescription fulfillPrescription = updatePrescriptionToFulfillStatus(prescription);
+            auditLogService.saveLogPrescription(fulfillPrescription, AuditStatus.SUCCESS, null);
             return new PrescriptionStatusResponse(prescriptionId, PrescriptionStatus.FULFILLED);
         } catch (Exception ex) {
             Prescription rejectedPrescription = prescriptionStatusService.storeRejectPrescription(prescription);
             auditLogService.saveLogPrescription(rejectedPrescription, AuditStatus.FAILURE, ex.getMessage());
             throw ex;
         }
+    }
+
+    private void generateDrugInfoFromRequest(PrescriptionRequest.DrugRequestInfo drugRequest,
+                                             Pharmacy pharmacy,
+                                             Long pharmacyId,
+                                             Prescription prescription,
+                                             List<PrescriptionDrugInfo> prescriptionDrugInfoList) {
+        Long drugId = drugRequest.drugId();
+        Drug drug = drugRepository.findById(drugId).orElseThrow(() -> new DrugNotFoundException(drugId));
+        PharmacyDrugInfo pharmacyDrugInfo = pharmacyDrugInfoRepository.findByPharmacyAndDrug(pharmacy, drug).orElseThrow(() ->
+                new PharmacyDrugInfoNotFoundException(pharmacyId, drugId));
+
+        validateDrug(drug, pharmacyDrugInfo, drugRequest.quantity());
+
+        PrescriptionDrugInfo prescriptionDrugInfo = new PrescriptionDrugInfo(drug, drugRequest.quantity());
+        prescriptionDrugInfo.setPrescription(prescription);
+        prescriptionDrugInfoList.add(prescriptionDrugInfo);
+    }
+
+    private void processPrescriptionDrugInfo(PrescriptionDrugInfo drugInfo,
+                                             Prescription prescription,
+                                             List<DrugStockUpdate> drugStockUpdates,
+                                             List<PharmacyStockUpdate> pharmacyStockUpdates) {
+        Drug drug = drugInfo.getDrug();
+        Pharmacy pharmacy = prescription.getPharmacy();
+        PharmacyDrugInfo pharmacyDrugInfo = pharmacyDrugInfoRepository
+                .findByPharmacyAndDrug(prescription.getPharmacy(), drug).orElseThrow(() ->
+                        new PharmacyDrugInfoNotFoundException(prescription.getPharmacy().getId(), drug.getId()));
+
+        validateDrug(drug, pharmacyDrugInfo, drugInfo.getQuantity());
+
+        drugStockUpdates.add(new DrugStockUpdate(drug.getId(), drugInfo.getQuantity()));
+        pharmacyStockUpdates.add(new PharmacyStockUpdate(
+                pharmacy.getId(), drug.getId(), drugInfo.getQuantity()));
+    }
+
+    private Prescription updatePrescriptionToFulfillStatus(Prescription prescription) {
+        prescription.setStatus(PrescriptionStatus.FULFILLED);
+        prescription.setUpdatedAt(LocalDateTime.now());
+        return prescriptionRepository.save(prescription);
     }
 
 

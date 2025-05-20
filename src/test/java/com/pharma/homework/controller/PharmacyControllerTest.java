@@ -49,7 +49,7 @@ public class PharmacyControllerTest {
         when(pharmacyService.getAllPharmacyDrugInfo()).thenReturn(List.of(response1, response2));
 
         // then
-        mockMvc.perform(get("/pharmacy/all")
+        mockMvc.perform(get("/pharmacies")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))

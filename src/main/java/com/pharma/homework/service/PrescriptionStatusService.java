@@ -19,7 +19,7 @@ public class PrescriptionStatusService {
         this.prescriptionRepository = prescriptionRepository;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW) // 开一个新事务来保存log，与外部事务隔离
     public Prescription storeRejectPrescription(Prescription prescription) {
         prescription.setStatus(PrescriptionStatus.REJECTED);
         prescription.setUpdatedAt(LocalDateTime.now());

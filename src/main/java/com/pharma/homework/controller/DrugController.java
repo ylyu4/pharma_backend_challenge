@@ -6,6 +6,7 @@ import com.pharma.homework.dto.response.DrugResponse;
 import com.pharma.homework.service.DrugService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/drug")
+@RequestMapping("/drugs")
 public class DrugController {
 
     private final DrugService drugService;
@@ -28,9 +29,9 @@ public class DrugController {
         return ResponseEntity.ok(drugResponse);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<DrugResponse> addDrug(@Valid @RequestBody DrugAddRequest drugAddRequest) {
-        DrugResponse drugResponse = drugService.addDrug(drugAddRequest);
-        return ResponseEntity.ok(drugResponse);
+    @PutMapping("/{id}")
+    public ResponseEntity<DrugResponse> updateDrug(@PathVariable Long id, @Valid @RequestBody DrugAddRequest drugAddRequest) {
+        DrugResponse drugResponse = drugService.addDrug(id, drugAddRequest);
+        return ResponseEntity.ok(drugResponse); // OK
     }
 }

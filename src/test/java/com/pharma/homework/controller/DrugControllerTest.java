@@ -7,6 +7,7 @@ import com.pharma.homework.dto.response.DrugResponse;
 import com.pharma.homework.exception.DrugNotFoundException;
 import com.pharma.homework.model.Drug;
 import com.pharma.homework.service.DrugService;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -47,7 +48,7 @@ public class DrugControllerTest {
         when(drugService.createNewDrug(any())).thenReturn(drugResponse);
 
         // then
-        mockMvc.perform(post("/drug")
+        mockMvc.perform(post("/drugs")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -117,7 +118,7 @@ public class DrugControllerTest {
                     }
                 """,})
     void should_return_error_when_params_are_invalid(String name) throws Exception {
-        mockMvc.perform(post("/drug")
+        mockMvc.perform(post("/drugs")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(name))
                 .andExpect(status().isBadRequest());
@@ -126,45 +127,36 @@ public class DrugControllerTest {
     @Test
     void should_add_drug_successfully() throws Exception {
         // given
-        DrugAddRequest request = new DrugAddRequest(1L, 100);
+        DrugAddRequest request = new DrugAddRequest(100);
         DrugResponse drugResponse = new DrugResponse(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 200);
-        when(drugService.addDrug(any())).thenReturn(drugResponse);
+        when(drugService.addDrug(any(), any())).thenReturn(drugResponse);
 
         // then
-        mockMvc.perform(put("/drug/update")
+        mockMvc.perform(put("/drugs/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.stock").value(200));
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"""
-                    {
-                        "addedStock": 50
-                    }
-                """, """
-                    {
-                        "id": 1L
-                    }
-                """})
-    void should_throw_error_when_params_are_invalid(String name) throws Exception {
-        mockMvc.perform(put("/drug/update")
+    @Test
+    void should_throw_error_when_params_are_invalid() throws Exception {
+        mockMvc.perform(put("/drugs/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(name))
+                        .content(StringUtils.EMPTY))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void should_throw_not_found_exception_when_id_does_not_exist() throws Exception {
         // given
-        DrugAddRequest request = new DrugAddRequest(1L, 100);
+        DrugAddRequest request = new DrugAddRequest(100);
 
         // when
-        when(drugService.addDrug(any())).thenThrow(DrugNotFoundException.class);
+        when(drugService.addDrug(any(), any())).thenThrow(DrugNotFoundException.class);
 
         // then
-        mockMvc.perform(put("/drug/update")
+        mockMvc.perform(put("/drugs/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());

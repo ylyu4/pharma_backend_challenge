@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/pharmacy")
+@RequestMapping("/pharmacies")
 public class PharmacyController {
 
     private final PharmacyService pharmacyService;
@@ -19,9 +19,11 @@ public class PharmacyController {
         this.pharmacyService = pharmacyService;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<PharmaciesResponse>> getAllPharmaciesWithDrugInfo() {
         return ResponseEntity.ok(pharmacyService.getAllPharmacyDrugInfo());
     }
+
+    // todo: add a api to add pharmacy and pharmacy drug info
 
 }
