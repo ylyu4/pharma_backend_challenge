@@ -41,18 +41,10 @@ public class PharmacyControllerTest {
     void should_return_all_pharmacies_info() throws Exception {
         // given
         Drug drug = TestUtils.generateDrug(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 100);
-        Pharmacy pharmacy1 = new Pharmacy();
-        pharmacy1.setId(1L);
-        pharmacy1.setName("Pharmacy1");
-        pharmacy1.setAddress("Address1");
-        pharmacy1.setPhone("Phone1");
+        Pharmacy pharmacy1 = new Pharmacy(1L, "Pharmacy1", "Address1", "Phone1");
         PharmacyDrugInfo drugInfo = TestUtils.generateDrugInfo(pharmacy1, drug, 50, 200);
         pharmacy1.setDrugInfoSet(Set.of(drugInfo));
-        Pharmacy pharmacy2 = new Pharmacy();
-        pharmacy2.setId(2L);
-        pharmacy2.setName("Pharmacy2");
-        pharmacy2.setAddress("Address2");
-        pharmacy2.setPhone("Phone2");
+        Pharmacy pharmacy2 = new Pharmacy(2L, "Pharmacy2", "Address2", "Phone2");
         pharmacy2.setDrugInfoSet(Set.of(drugInfo));
         PharmaciesResponse response1 = new PharmaciesResponse(1L, "Pharmacy1", "Address1", "Phone1",
                 List.of(new DrugInfoResponse(1L, "VitaminB", "Unknown", "x123456", LocalDate.now(), 200, 50)));

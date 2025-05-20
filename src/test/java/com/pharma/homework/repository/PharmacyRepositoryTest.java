@@ -34,10 +34,7 @@ public class PharmacyRepositoryTest {
     void test_find_all_pharmacies_with_drug_info() {
         // given
         Drug drug = TestUtils.generateDrug("VitaminB", "Unknown", "x123456", LocalDate.now(), 10);
-        Pharmacy pharmacy = new Pharmacy();
-        pharmacy.setName("Pharmacy1");
-        pharmacy.setAddress("Address1");
-        pharmacy.setPhone("Phone1");
+        Pharmacy pharmacy = new Pharmacy("Pharmacy1", "Address1", "Phone1");
         PharmacyDrugInfo pharmacyDrugInfo = new PharmacyDrugInfo();
         pharmacyDrugInfo.setDrug(drug);
         pharmacyDrugInfo.setPharmacy(pharmacy);

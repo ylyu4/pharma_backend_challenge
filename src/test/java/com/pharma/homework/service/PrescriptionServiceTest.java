@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,6 +55,9 @@ public class PrescriptionServiceTest {
 
     @Mock
     PharmacyDrugInfoRepository pharmacyDrugInfoRepository;
+
+    @Mock
+    AuditLogService auditLogService;
 
     @InjectMocks
     PrescriptionService prescriptionService;
@@ -213,6 +217,7 @@ public class PrescriptionServiceTest {
         when(drugRepository.decreaseStock(any(), any())).thenReturn(1);
         when(pharmacyDrugInfoRepository.increaseDispensingAmount(any(), any(), any()))
                 .thenReturn(1);
+        doNothing().when(auditLogService).saveLogPrescription(any(), any(), any());
 
         // when
         PrescriptionStatusResponse response = prescriptionService.fulfillPrescription(1L);
@@ -269,6 +274,7 @@ public class PrescriptionServiceTest {
         when(prescriptionRepository.findById(1L)).thenReturn(Optional.of(prescription));
         when(pharmacyDrugInfoRepository.findByPharmacyAndDrug(any(), any()))
                 .thenReturn(Optional.of(buildValidPharmacyDrugInfo()));
+        doNothing().when(auditLogService).saveLogPrescription(any(), any(), any());
 
         // then
         assertThrows(InsufficientGlobalStockException.class, () -> prescriptionService.fulfillPrescription(1L));
@@ -286,6 +292,7 @@ public class PrescriptionServiceTest {
         when(prescriptionRepository.findById(1L)).thenReturn(Optional.of(prescription));
         when(pharmacyDrugInfoRepository.findByPharmacyAndDrug(any(), any()))
                 .thenReturn(Optional.of(invalidAllocation));
+        doNothing().when(auditLogService).saveLogPrescription(any(), any(), any());
 
         // then
         assertThrows(InsufficientPharmacyStockException.class, () -> prescriptionService.fulfillPrescription(1L));

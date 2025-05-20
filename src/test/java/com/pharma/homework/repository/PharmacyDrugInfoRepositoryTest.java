@@ -32,10 +32,7 @@ class PharmacyDrugInfoRepositoryTest {
     @Test
     void should_save_and_retrieve_pharmacy_drug_info() {
         // given
-        Pharmacy pharmacy = new Pharmacy();
-        pharmacy.setName("Pharmacy1");
-        pharmacy.setAddress("Address1");
-        pharmacy.setPhone("Phone1");
+        Pharmacy pharmacy = new Pharmacy("Pharmacy1", "Address1", "Phone1");
 
         Drug drug = TestUtils.generateDrug("test", "test", "test", LocalDate.now().plusYears(1), 100);
 
@@ -59,10 +56,7 @@ class PharmacyDrugInfoRepositoryTest {
     @Test
     void should_find_by_pharmacy_and_drug() {
         // given
-        Pharmacy pharmacy = new Pharmacy();
-        pharmacy.setName("Pharmacy1");
-        pharmacy.setAddress("Address1");
-        pharmacy.setPhone("Phone1");
+        Pharmacy pharmacy = new Pharmacy("Pharmacy1", "Address1", "Phone1");
         Pharmacy savedPharmacy = pharmacyRepository.save(pharmacy);
         Drug drug = TestUtils.generateDrug("test", "test", "test", LocalDate.now().plusYears(1), 100);
         Drug savedDrug = drugRepository.save(drug);

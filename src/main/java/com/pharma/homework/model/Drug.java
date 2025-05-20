@@ -33,6 +33,13 @@ public class Drug {
     @Version
     private Integer version;
 
+    public Drug() {
+    }
+
+    public Drug(Long id) {
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }

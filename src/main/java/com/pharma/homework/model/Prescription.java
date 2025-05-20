@@ -44,6 +44,9 @@ public class Prescription {
     @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PrescriptionDrugInfo> prescriptionDrugs = new ArrayList<>();
 
+    public Prescription() {
+    }
+
     public Prescription(Pharmacy pharmacy,
                         Long patientId,
                         PrescriptionStatus status,
@@ -92,5 +95,9 @@ public class Prescription {
 
     public void setStatus(PrescriptionStatus status) {
         this.status = status;
+    }
+
+    public void setPrescriptionDrugs(List<PrescriptionDrugInfo> prescriptionDrugs) {
+        this.prescriptionDrugs = prescriptionDrugs;
     }
 }

@@ -11,6 +11,7 @@ import com.pharma.homework.exception.InvalidPrescriptionStatusException;
 import com.pharma.homework.exception.PharmacyDrugInfoNotFoundException;
 import com.pharma.homework.exception.PharmacyNotFoundException;
 import com.pharma.homework.exception.PrescriptionNotFoundException;
+import com.pharma.homework.model.AuditStatus;
 import com.pharma.homework.model.Drug;
 import com.pharma.homework.model.Pharmacy;
 import com.pharma.homework.model.PharmacyDrugInfo;
@@ -44,14 +45,19 @@ public class PrescriptionService {
 
     private final PharmacyDrugInfoRepository pharmacyDrugInfoRepository;
 
+    private final AuditLogService auditLogService;
+
 
     public PrescriptionService(PrescriptionRepository prescriptionRepository,
                                PharmacyRepository pharmacyRepository,
-                               DrugRepository drugRepository, PharmacyDrugInfoRepository pharmacyDrugInfoRepository) {
+                               DrugRepository drugRepository,
+                               PharmacyDrugInfoRepository pharmacyDrugInfoRepository,
+                               AuditLogService auditLogService) {
         this.prescriptionRepository = prescriptionRepository;
         this.pharmacyRepository = pharmacyRepository;
         this.drugRepository = drugRepository;
         this.pharmacyDrugInfoRepository = pharmacyDrugInfoRepository;
+        this.auditLogService = auditLogService;
     }
 
     @Transactional
@@ -60,21 +66,25 @@ public class PrescriptionService {
         Pharmacy pharmacy = pharmacyRepository.findById(pharmacyId).orElseThrow(() ->
                 new PharmacyNotFoundException(pharmacyId));
         List<PrescriptionRequest.DrugRequestInfo> drugRequests = prescriptionRequest.getDrugs();
-        List<PrescriptionDrugInfo> prescriptionDrugInfoList = new ArrayList<>();
-        for (PrescriptionRequest.DrugRequestInfo drugRequest : drugRequests) {
-            Long drugId = drugRequest.getDrugId();
-            Drug drug = drugRepository.findById(drugId).orElseThrow(() -> new DrugNotFoundException(drugId));
-            PharmacyDrugInfo pharmacyDrugInfo = pharmacyDrugInfoRepository.findByPharmacyAndDrug(pharmacy, drug).orElseThrow(() ->
-                 new PharmacyDrugInfoNotFoundException(pharmacyId, drugId));
-            validateDrug(drug, pharmacyDrugInfo, drugRequest.getQuantity());
-            prescriptionDrugInfoList.add(new PrescriptionDrugInfo(drug, drugRequest.getQuantity()));
-        }
         Prescription prescription = new Prescription(pharmacy,
                 prescriptionRequest.getPatientId(),
                 PrescriptionStatus.CREATED,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
-                prescriptionDrugInfoList);
+                new ArrayList<>());
+        List<PrescriptionDrugInfo> prescriptionDrugInfoList = new ArrayList<>();
+        for (PrescriptionRequest.DrugRequestInfo drugRequest : drugRequests) {
+            Long drugId = drugRequest.getDrugId();
+            Drug drug = drugRepository.findById(drugId).orElseThrow(() -> new DrugNotFoundException(drugId));
+            PharmacyDrugInfo pharmacyDrugInfo = pharmacyDrugInfoRepository.findByPharmacyAndDrug(pharmacy, drug).orElseThrow(() ->
+                    new PharmacyDrugInfoNotFoundException(pharmacyId, drugId));
+            validateDrug(drug, pharmacyDrugInfo, drugRequest.getQuantity());
+
+            PrescriptionDrugInfo prescriptionDrugInfo = new PrescriptionDrugInfo(drug, drugRequest.getQuantity());
+            prescriptionDrugInfo.setPrescription(prescription); // Set prescription reference
+            prescriptionDrugInfoList.add(prescriptionDrugInfo);
+        }
+        prescription.setPrescriptionDrugs(prescriptionDrugInfoList);
 
         Prescription saved = prescriptionRepository.save(prescription);
 
@@ -114,14 +124,14 @@ public class PrescriptionService {
 
             prescription.setStatus(PrescriptionStatus.FULFILLED);
             prescription.setUpdatedAt(LocalDateTime.now());
-            prescriptionRepository.save(prescription);
-
+            Prescription succeedPrescription = prescriptionRepository.save(prescription);
+            auditLogService.saveLogPrescription(succeedPrescription, AuditStatus.SUCCESS, null);
             return new PrescriptionStatusResponse(prescriptionId, PrescriptionStatus.FULFILLED);
-
-        } catch (RuntimeException ex) {
+        } catch (Exception ex) {
             prescription.setStatus(PrescriptionStatus.REJECTED);
             prescription.setUpdatedAt(LocalDateTime.now());
-            prescriptionRepository.save(prescription);
+            Prescription failedPrescription = prescriptionRepository.save(prescription);
+            auditLogService.saveLogPrescription(failedPrescription, AuditStatus.FAILURE, ex.getMessage());
             throw ex;
         }
     }

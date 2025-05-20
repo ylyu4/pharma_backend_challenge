@@ -34,10 +34,7 @@ public class PrescriptionRepositoryTest {
     @Test
     void test_save_prescription_successfully() {
         // given
-        Pharmacy pharmacy = new Pharmacy();
-        pharmacy.setName("pharmacy1");
-        pharmacy.setAddress("123 Main St");
-        pharmacy.setPhone("1234567890");
+        Pharmacy pharmacy = new Pharmacy("pharmacy1", "123 Main St", "1234567890");
         Pharmacy savedPharmacy = pharmacyRepository.save(pharmacy);
 
         Drug drug = TestUtils.generateDrug("test", "test", "test", LocalDateTime.now().toLocalDate().plusMonths(6), 100);

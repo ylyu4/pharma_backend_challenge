@@ -29,6 +29,8 @@ public class PrescriptionDrugInfo {
     @Column(nullable = false)
     private Integer quantity;
 
+    public PrescriptionDrugInfo() {
+    }
 
     public PrescriptionDrugInfo(Drug drug, Integer quantity) {
         this.drug = drug;
