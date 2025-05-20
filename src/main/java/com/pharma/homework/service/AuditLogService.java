@@ -10,6 +10,7 @@ import com.pharma.homework.model.Prescription;
 import com.pharma.homework.model.PrescriptionDrugInfo;
 import com.pharma.homework.repository.AuditLogRepository;
 import com.pharma.homework.repository.DrugRepository;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class AuditLogService {
         this.drugRepository = drugRepository;
     }
 
+    @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveLogPrescription(Prescription prescription, AuditStatus status, String errorMessage) {
         AuditLog auditLog = new AuditLog(prescription, prescription.getPatientId(), prescription.getPharmacy().getId(),
