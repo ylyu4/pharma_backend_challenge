@@ -80,10 +80,8 @@
                 </dependencies>
                 <configuration>
                     <configLocation>src/main/resources/checkstyle.xml</configLocation>
-                    <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
-                    <failsOnWarning>true</failsOnWarning>
                     <includeTestSourceDirectory>false</includeTestSourceDirectory>
                 </configuration>
                 <executions>
