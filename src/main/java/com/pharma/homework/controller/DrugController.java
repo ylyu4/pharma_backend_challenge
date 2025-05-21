@@ -5,6 +5,7 @@ import com.pharma.homework.dto.request.DrugAddRequest;
 import com.pharma.homework.dto.response.DrugResponse;
 import com.pharma.homework.service.DrugService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,12 +27,12 @@ public class DrugController {
     @PostMapping("")
     public ResponseEntity<DrugResponse> createDrug(@Valid @RequestBody CreateDrugRequest createDrugRequest) {
         DrugResponse drugResponse = drugService.createNewDrug(createDrugRequest);
-        return ResponseEntity.ok(drugResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(drugResponse);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<DrugResponse> updateDrug(@PathVariable Long id, @Valid @RequestBody DrugAddRequest drugAddRequest) {
         DrugResponse drugResponse = drugService.addDrug(id, drugAddRequest);
-        return ResponseEntity.ok(drugResponse); // OK
+        return ResponseEntity.ok(drugResponse);
     }
 }

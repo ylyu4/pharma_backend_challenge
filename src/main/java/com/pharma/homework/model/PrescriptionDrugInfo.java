@@ -76,8 +76,12 @@ public class PrescriptionDrugInfo {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             PrescriptionDrugId that = (PrescriptionDrugId) o;
             return Objects.equals(prescription, that.prescription) && Objects.equals(drug, that.drug);
         }

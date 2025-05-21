@@ -51,7 +51,7 @@ public class DrugControllerTest {
         mockMvc.perform(post("/drugs")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.name").value("VitaminB"));
     }

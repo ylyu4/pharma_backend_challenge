@@ -47,7 +47,7 @@ Request Body:
 
 ```
 
-Response Status: `200 OK`
+Response Status: `201 CREATED`
 
 Response Body:
 ```

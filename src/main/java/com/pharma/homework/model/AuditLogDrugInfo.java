@@ -88,8 +88,12 @@ public class AuditLogDrugInfo {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             AuditLogDrugId that = (AuditLogDrugId) o;
             return Objects.equals(auditLog, that.auditLog) && Objects.equals(drug, that.drug);
         }
