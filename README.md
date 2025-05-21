@@ -1,42 +1,41 @@
-# 项目介绍
+# Project Introduction
 
-这是一个医药供应链和处方履行系统。管理了药物、药房、处方的基础信息和库存信息，以及患者处方的处理和各种处理的日志信息。
+This is a pharmaceutical supply chain and prescription fulfillment system. It manages the basic information and inventory of drugs, pharmacies, and prescriptions, as well as the handling of patient prescriptions and various related log information.
+
+# Environment Requirements
+
+Java Version: JDK 21
+
+Build Tool: Maven
+
+Spring Boot Version: 3.1.8
 
 
-# 环境要求
+# Installation and Running Instructions
 
-Java 版本: JDK 21
-
-构建工具：Maven
-
-Spring Boot 版本：3.1.8
-
-
-# 安装与运行说明
-
-安装依赖并构建: 
+Install dependencies and build the project:
 
 `mvn clean install`
 
-启动应用:
+Start the application:
 
 `mvn spring-boot:run`
 
-# 本地构建数据库
-运行docker-compose.yml文件在本地通过docker把postgreSql启动起来:
+# Local Database Setup
+To run PostgreSQL locally via Docker, use the following command with the provided docker-compose.yml file:
 
 `docker-compose up`
 
-# API 文档
+# API Documentation
 
 
-## 药品接口
+## Drug API
 
-**创建药品:**
+**Create a Drug:**
 
 URL：`POST /drugs`
 
-请求体:
+Request Body:
 ```
 {
   "name": "Paracetamol",
@@ -48,9 +47,9 @@ URL：`POST /drugs`
 
 ```
 
-响应状态：`200 OK`
+Response Status: `200 OK`
 
-响应体：
+Response Body:
 ```
 {
     "id": 101,
@@ -62,13 +61,13 @@ URL：`POST /drugs`
 }
 ```
 
-**修改药品库存/信息:**
+**Update Drug Stock/Information:**
 
 URL：`PUT /drugs/{id}`
 
-路径参数: `id`
+Path Parameter: `id`
 
-请求体:
+Request Body:
 ```
 {
   "addedStock": 50
@@ -76,9 +75,9 @@ URL：`PUT /drugs/{id}`
 
 ```
 
-响应状态：`200 OK`
+Response Status: `200 OK`
 
-响应体：
+Response Body:
 ```
 {
     "id": 101,
@@ -90,15 +89,15 @@ URL：`PUT /drugs/{id}`
 }
 ```
 
-## 药店接口
+## Pharmacy API
 
-**获取药店及药品信息:**
+**Get Pharmacy and Drug Information:**
 
 URL：`GET /pharmacies`
 
-响应状态：`200 OK`
+Response Status：`200 OK`
 
-响应体：
+Response Body:
 ```
 [
   {
@@ -158,13 +157,13 @@ URL：`GET /pharmacies`
 
 ```
 
-## 处方接口
+## Prescription API
 
-**创建处方:**
+**Create Prescription:**
 
 URL：`POST /prescriptions`
 
-请求体:
+Request Body:
 ```
 {
     "patientId": 1001,
@@ -173,9 +172,9 @@ URL：`POST /prescriptions`
 }
 ```
 
-响应状态：`201 Created`
+Response Status: `201 Created`
 
-响应体：
+Response Body:
 ```
 {
   "prescriptionId": 1001,
@@ -183,15 +182,15 @@ URL：`POST /prescriptions`
 }
 ```
 
-**履行处方:**
+**Fulfill Prescription:**
 
 URL：`PUT /prescriptions/{id}/status/fulfilled`
 
-路径参数: `id`
+Path Parameter:  `id`
 
-响应状态：`200 OK`
+Response Status: `200 OK`
 
-响应体：
+Response Body:
 ```
 {
   "prescriptionId": 1001,
@@ -199,17 +198,17 @@ URL：`PUT /prescriptions/{id}/status/fulfilled`
 }
 ```
 
-## 审计日志接口
+## Audit Log API
 
-**获取审计日志列表:**
+**Get Audit Log List:**
 
 URL：`GET /audit-logs`
 
-请求参数: `patientId, pharmacyId, status `
+Query Parameters:  `patientId, pharmacyId, status `
 
-响应状态：`200 OK`
+Response Status: `200 OK`
 
-响应体：
+Response Body:
 ```
 [
     {
@@ -252,16 +251,16 @@ URL：`GET /audit-logs`
 ]
 ```
 
-# 测试说明
-**测试工具和框架:**
+# Test Documentation
+**Testing Tools and Frameworks:**
 
 JUnit 5, Mockito, Spring Boot Test, H2
 
-**测试执行:**
+**Test Execution:**
 `mvn test`
 
 
-**Controller层测试(接口测试)**
+**Controller Layer Tests (API Testing)**
 
 `AuditControllerTest`
 
@@ -272,7 +271,7 @@ JUnit 5, Mockito, Spring Boot Test, H2
 `PrescriptionControllerTest`
 
 
-**Repository层测试(数据持久化测试)**
+**Repository Layer Tests (Data Persistence Testing)**
 
 `AuditLogRepositoryTest`
 
@@ -285,7 +284,7 @@ JUnit 5, Mockito, Spring Boot Test, H2
 `PrescriptionRepositoryTest`
 
 
-**Service层测试(核心业务逻辑测试)**
+**Service Layer Tests (Core Business Logic Testing)**
 
 `AuditLogServiceTest`
 
@@ -301,17 +300,17 @@ JUnit 5, Mockito, Spring Boot Test, H2
 
 
 
-# Lint 使用说明
+# Lint Usage Instructions
 
-**代码规范检查(Checkstyle)**
+**Code Style Check (Checkstyle)**
 
-项目集成了 checkstyle 插件，使用 src/main/resources/checkstyle.xml 规则文件
+The project integrates the Checkstyle plugin with the src/main/resources/checkstyle.xml rules file.
 
-检查指令:
+Check Command:
 
 `mvn checkstyle:check`
 
 
 
-# 数据库schema design
+# Database Schema Design
 ![img.png](img.png)
